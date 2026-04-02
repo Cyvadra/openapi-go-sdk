@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/tigerfintech/openapi-sdks/go/client"
-	"github.com/tigerfintech/openapi-sdks/go/config"
+	"github.com/tigerfintech/openapi-go-sdk/client"
+	"github.com/tigerfintech/openapi-go-sdk/config"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"

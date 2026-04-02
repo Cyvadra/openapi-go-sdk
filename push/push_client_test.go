@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/tigerfintech/openapi-sdks/go/config"
+	"github.com/tigerfintech/openapi-go-sdk/config"
 )
 
 // ===== 测试辅助工具 =====

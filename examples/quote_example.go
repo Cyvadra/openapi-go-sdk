@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/tigerfintech/openapi-sdks/go/config"
-	"github.com/tigerfintech/openapi-sdks/go/quote"
+	"github.com/tigerfintech/openapi-go-sdk/config"
+	"github.com/tigerfintech/openapi-go-sdk/quote"
 )
 
 func QuoteExample() {

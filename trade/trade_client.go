@@ -4,8 +4,8 @@ package trade
 import (
 	"encoding/json"
 
-	"github.com/tigerfintech/openapi-sdks/go/client"
-	"github.com/tigerfintech/openapi-sdks/go/model"
+	"github.com/tigerfintech/openapi-go-sdk/client"
+	"github.com/tigerfintech/openapi-go-sdk/model"
 )
 
 // TradeClient 交易客户端，封装所有交易相关 API。

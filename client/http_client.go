@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tigerfintech/openapi-sdks/go/config"
-	"github.com/tigerfintech/openapi-sdks/go/signer"
+	"github.com/tigerfintech/openapi-go-sdk/config"
+	"github.com/tigerfintech/openapi-go-sdk/signer"
 )
 
 const (

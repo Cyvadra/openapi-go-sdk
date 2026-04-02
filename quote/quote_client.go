@@ -4,7 +4,7 @@ package quote
 import (
 	"encoding/json"
 
-	"github.com/tigerfintech/openapi-sdks/go/client"
+	"github.com/tigerfintech/openapi-go-sdk/client"
 )
 
 // QuoteClient 行情查询客户端，封装所有行情相关 API。

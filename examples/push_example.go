@@ -11,8 +11,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/tigerfintech/openapi-sdks/go/config"
-	"github.com/tigerfintech/openapi-sdks/go/push"
+	"github.com/tigerfintech/openapi-go-sdk/config"
+	"github.com/tigerfintech/openapi-go-sdk/push"
 )
 
 func PushExample() {

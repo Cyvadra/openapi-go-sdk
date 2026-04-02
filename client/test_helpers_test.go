@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tigerfintech/openapi-sdks/go/config"
+	"github.com/tigerfintech/openapi-go-sdk/config"
 )
 
 // mustGenerateKeyPEM 生成测试用 PKCS#1 PEM 格式私钥（不依赖 testing.T）

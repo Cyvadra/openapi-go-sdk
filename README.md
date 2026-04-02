@@ -2,13 +2,13 @@
 
 老虎证券 OpenAPI 的 Go 语言 SDK，提供行情查询、交易下单、账户管理和实时推送等功能。
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/tigerfintech/openapi-sdks/go.svg)](https://pkg.go.dev/github.com/tigerfintech/openapi-sdks/go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/tigerfintech/openapi-go-sdk.svg)](https://pkg.go.dev/github.com/tigerfintech/openapi-go-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 安装
 
 ```bash
-go get github.com/tigerfintech/openapi-sdks/go
+go get github.com/tigerfintech/openapi-go-sdk
 ```
 
 要求 Go 1.20 或更高版本。
@@ -24,9 +24,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/tigerfintech/openapi-sdks/go/client"
-	"github.com/tigerfintech/openapi-sdks/go/config"
-	"github.com/tigerfintech/openapi-sdks/go/quote"
+	"github.com/tigerfintech/openapi-go-sdk/client"
+	"github.com/tigerfintech/openapi-go-sdk/config"
+	"github.com/tigerfintech/openapi-go-sdk/quote"
 )
 
 func main() {
@@ -183,7 +183,7 @@ fmt.Println("原始响应:", resp)
 通过 WebSocket 长连接接收实时行情和账户推送，支持自动重连和心跳保活：
 
 ```go
-import "github.com/tigerfintech/openapi-sdks/go/push"
+import "github.com/tigerfintech/openapi-go-sdk/push"
 
 pc := push.NewPushClient(cfg)
 
@@ -230,7 +230,7 @@ pc.SubscribePosition("")
 ## 项目结构
 
 ```
-go/
+openapi-go-sdk/
 ├── config/    # 配置管理（ClientConfig、ConfigParser、动态域名）
 ├── signer/    # RSA 签名
 ├── client/    # HTTP 客户端（请求/响应、重试策略、ExecuteRaw）
@@ -245,7 +245,7 @@ go/
 ## API 参考
 
 - [老虎证券 OpenAPI 文档](https://quant.itigerup.com/openapi/zh/python/overview/introduction.html)
-- [Go SDK pkg.go.dev](https://pkg.go.dev/github.com/tigerfintech/openapi-sdks/go)
+- [Go SDK pkg.go.dev](https://pkg.go.dev/github.com/tigerfintech/openapi-go-sdk)
 
 ## 许可证
 

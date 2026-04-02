@@ -1,4 +1,4 @@
-module github.com/tigerfintech/openapi-sdks/go
+module github.com/tigerfintech/openapi-go-sdk
 
 go 1.20
 

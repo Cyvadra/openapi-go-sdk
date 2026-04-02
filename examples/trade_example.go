@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/tigerfintech/openapi-sdks/go/config"
-	"github.com/tigerfintech/openapi-sdks/go/model"
-	"github.com/tigerfintech/openapi-sdks/go/trade"
+	"github.com/tigerfintech/openapi-go-sdk/config"
+	"github.com/tigerfintech/openapi-go-sdk/model"
+	"github.com/tigerfintech/openapi-go-sdk/trade"
 )
 
 func TradeExample() {
