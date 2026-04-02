@@ -1,0 +1,22 @@
+# 2026/03/31 12:34:22.270367 [TestPropertiesRoundTrip] [rapid] draw numPairs: 1
+# 2026/03/31 12:34:22.270370 [TestPropertiesRoundTrip] [rapid] draw key_0: "A"
+# 2026/03/31 12:34:22.270371 [TestPropertiesRoundTrip] [rapid] draw val_0: " "
+# 2026/03/31 12:34:22.270372 [TestPropertiesRoundTrip] [rapid] draw fileId: 0
+# 2026/03/31 12:34:22.270532 [TestPropertiesRoundTrip] 键 "A": 期望 " "，实际 ""
+# 
+v0.4.8#11276842232190545864
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0
+0x0

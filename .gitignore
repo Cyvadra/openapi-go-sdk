@@ -1,0 +1,30 @@
+# 二进制文件
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试输出
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# vendor 目录（使用 go modules 不需要）
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# 敏感文件
+*.properties
+!config/testdata/*.properties
+*.pem
+*.key
