@@ -10,12 +10,33 @@ import (
 	"pgregory.net/rapid"
 )
 
+func clearTigerEnv(t testing.TB) {
+	t.Helper()
+	for _, key := range []string{
+		"TIGEROPEN_TIGER_ID",
+		"TIGEROPEN_PRIVATE_KEY",
+		"TIGEROPEN_ACCOUNT",
+	} {
+		key := key
+		previous, ok := os.LookupEnv(key)
+		os.Unsetenv(key)
+		t.Cleanup(func() {
+			if ok {
+				os.Setenv(key, previous)
+			} else {
+				os.Unsetenv(key)
+			}
+		})
+	}
+}
+
 // Feature: multi-language-sdks, Property 2: ClientConfig 字段设置 round-trip
 // **Validates: Requirements 2.1, 2.6**
 //
 // 对于任意有效的配置参数组合，通过代码设置到 ClientConfig 后，
 // 读取各字段的值应与设置的值完全一致。
 func TestClientConfigFieldsRoundTrip(t *testing.T) {
+	clearTigerEnv(t)
 	rapid.Check(t, func(t *rapid.T) {
 		tigerID := rapid.StringMatching(`[a-zA-Z0-9]{1,20}`).Draw(t, "tigerID")
 		privateKey := rapid.StringMatching(`[a-zA-Z0-9]{1,100}`).Draw(t, "privateKey")
@@ -69,6 +90,7 @@ func TestClientConfigFieldsRoundTrip(t *testing.T) {
 // 对于任意配置字段（tiger_id、private_key、account），当环境变量和配置文件同时提供该字段的值时，
 // ClientConfig 最终使用的值应等于环境变量中的值。
 func TestEnvOverridesConfigFile(t *testing.T) {
+	clearTigerEnv(t)
 	rapid.Check(t, func(t *rapid.T) {
 		// 生成配置文件中的值
 		fileTigerID := rapid.StringMatching(`file_[a-zA-Z0-9]{1,15}`).Draw(t, "fileTigerID")

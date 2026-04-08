@@ -16,13 +16,15 @@ const (
 	licenseTBUS = "TBUS"
 	// COMMON 域名 key
 	domainKeyCommon = "COMMON"
+	// QUOTE 域名后缀
+	domainKeyQuoteSuffix = "-QUOTE"
 	// gateway 后缀
 	gatewaySuffix = "/gateway"
 )
 
 // domainResponse 域名查询响应
 type domainResponse struct {
-	Ret   int              `json:"ret"`
+	Ret   int                          `json:"ret"`
 	Items []map[string]json.RawMessage `json:"items"`
 }
 
@@ -98,4 +100,21 @@ func resolveDynamicServerURL(domainConf map[string]interface{}, license string) 
 	}
 
 	return ""
+}
+
+// resolveDynamicQuoteServerURL 根据动态域名配置和 license 解析行情服务器地址。
+func resolveDynamicQuoteServerURL(domainConf map[string]interface{}, license string) string {
+	if domainConf == nil || len(domainConf) == 0 {
+		return ""
+	}
+
+	if license != "" {
+		if url, ok := domainConf[license+domainKeyQuoteSuffix]; ok {
+			if s, ok := url.(string); ok {
+				return s + gatewaySuffix
+			}
+		}
+	}
+
+	return resolveDynamicServerURL(domainConf, license)
 }

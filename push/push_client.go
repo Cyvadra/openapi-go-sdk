@@ -83,10 +83,10 @@ type PushClient struct {
 	accountSubs   map[SubjectType]bool            // 账户级别订阅
 
 	// 并发控制
-	mu       sync.RWMutex
-	stopCh   chan struct{}
-	doneCh   chan struct{}
-	writeMu  sync.Mutex
+	mu      sync.RWMutex
+	stopCh  chan struct{}
+	doneCh  chan struct{}
+	writeMu sync.Mutex
 
 	// 用于测试的 dialer（可注入）
 	dialer WebSocketDialer

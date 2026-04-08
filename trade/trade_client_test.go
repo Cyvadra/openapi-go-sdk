@@ -6,14 +6,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/tigerfintech/openapi-go-sdk/client"
-	"github.com/tigerfintech/openapi-go-sdk/config"
-	"github.com/tigerfintech/openapi-go-sdk/model"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"time"
+
+	"github.com/tigerfintech/openapi-go-sdk/client"
+	"github.com/tigerfintech/openapi-go-sdk/config"
+	"github.com/tigerfintech/openapi-go-sdk/model"
 )
 
 // mustGenerateKeyPEM 生成测试用 PKCS#1 PEM 格式私钥

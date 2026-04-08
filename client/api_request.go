@@ -11,10 +11,17 @@ type ApiRequest struct {
 	Method string `json:"method"`
 	// BizContent 业务参数 JSON 字符串
 	BizContent string `json:"biz_content"`
+	// Version API 版本，留空时使用默认值。
+	Version string `json:"version,omitempty"`
 }
 
 // NewApiRequest 创建 API 请求，将业务参数序列化为 JSON 字符串作为 biz_content
 func NewApiRequest(method string, bizParams interface{}) (*ApiRequest, error) {
+	return NewVersionedApiRequest(method, bizParams, "")
+}
+
+// NewVersionedApiRequest 创建带版本信息的 API 请求。
+func NewVersionedApiRequest(method string, bizParams interface{}, version string) (*ApiRequest, error) {
 	var bizContent string
 	switch v := bizParams.(type) {
 	case string:
@@ -31,5 +38,6 @@ func NewApiRequest(method string, bizParams interface{}) (*ApiRequest, error) {
 	return &ApiRequest{
 		Method:     method,
 		BizContent: bizContent,
+		Version:    version,
 	}, nil
 }

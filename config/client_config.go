@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -17,6 +19,8 @@ const (
 	envTigerID    = "TIGEROPEN_TIGER_ID"
 	envPrivateKey = "TIGEROPEN_PRIVATE_KEY"
 	envAccount    = "TIGEROPEN_ACCOUNT"
+	envToken      = "TIGEROPEN_TOKEN"
+	envTokenFile  = "TIGEROPEN_TOKEN_FILE"
 )
 
 // ClientConfig 客户端配置，包含认证信息和运行参数。
@@ -31,7 +35,9 @@ type ClientConfig struct {
 	SandboxDebug         bool          `json:"-"`
 	Token                string        `json:"-"`
 	TokenRefreshDuration time.Duration `json:"-"`
+	DeviceID             string        `json:"device_id"`
 	ServerURL            string        `json:"-"`
+	QuoteServerURL       string        `json:"-"`
 	EnableDynamicDomain  bool          `json:"-"`
 }
 
@@ -88,9 +94,19 @@ func WithTokenRefreshDuration(d time.Duration) Option {
 	return func(c *ClientConfig) { c.TokenRefreshDuration = d }
 }
 
+// WithDeviceID 设置设备 ID。
+func WithDeviceID(deviceID string) Option {
+	return func(c *ClientConfig) { c.DeviceID = deviceID }
+}
+
 // WithEnableDynamicDomain 设置是否启用动态域名获取（默认启用）
 func WithEnableDynamicDomain(enable bool) Option {
 	return func(c *ClientConfig) { c.EnableDynamicDomain = enable }
+}
+
+// WithQuoteServerURL 设置行情网关地址。
+func WithQuoteServerURL(url string) Option {
+	return func(c *ClientConfig) { c.QuoteServerURL = url }
 }
 
 // WithPropertiesFile 从 properties 配置文件加载配置
@@ -157,6 +173,16 @@ func NewClientConfig(opts ...Option) (*ClientConfig, error) {
 	if v := os.Getenv(envAccount); v != "" {
 		cfg.Account = v
 	}
+	if v := os.Getenv(envToken); v != "" {
+		cfg.Token = v
+	}
+	if cfg.Token == "" {
+		token, err := loadTokenFromEnvOrDefault(strings.TrimSpace(os.Getenv(envTokenFile)))
+		if err != nil {
+			return nil, err
+		}
+		cfg.Token = token
+	}
 
 	// 设置默认值
 	if cfg.Language == "" {
@@ -165,10 +191,16 @@ func NewClientConfig(opts ...Option) (*ClientConfig, error) {
 	if cfg.Timeout == 0 {
 		cfg.Timeout = defaultTimeout
 	}
+	if cfg.DeviceID == "" {
+		cfg.DeviceID = detectDeviceID()
+	}
 
 	// 确定服务器地址：sandbox > 动态域名 > 默认
 	if cfg.SandboxDebug {
 		cfg.ServerURL = sandboxServerURL
+		if cfg.QuoteServerURL == "" {
+			cfg.QuoteServerURL = sandboxServerURL
+		}
 	} else if cfg.ServerURL == "" {
 		// 尝试动态域名获取
 		if cfg.EnableDynamicDomain {
@@ -176,11 +208,20 @@ func NewClientConfig(opts ...Option) (*ClientConfig, error) {
 			if dynamicURL := resolveDynamicServerURL(domainConf, cfg.License); dynamicURL != "" {
 				cfg.ServerURL = dynamicURL
 			}
+			if dynamicQuoteURL := resolveDynamicQuoteServerURL(domainConf, cfg.License); dynamicQuoteURL != "" {
+				cfg.QuoteServerURL = dynamicQuoteURL
+			}
 		}
 		// 动态域名获取失败或未启用，使用默认地址
 		if cfg.ServerURL == "" {
 			cfg.ServerURL = defaultServerURL
 		}
+		if cfg.QuoteServerURL == "" {
+			cfg.QuoteServerURL = cfg.ServerURL
+		}
+	}
+	if cfg.QuoteServerURL == "" {
+		cfg.QuoteServerURL = cfg.ServerURL
 	}
 
 	// 校验必填字段
@@ -192,4 +233,82 @@ func NewClientConfig(opts ...Option) (*ClientConfig, error) {
 	}
 
 	return cfg, nil
+}
+
+func detectDeviceID() string {
+	if deviceID := detectDefaultRouteDeviceID(); deviceID != "" {
+		return deviceID
+	}
+
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return ""
+	}
+	for _, iface := range interfaces {
+		if len(iface.HardwareAddr) == 0 {
+			continue
+		}
+		return iface.HardwareAddr.String()
+	}
+	return ""
+}
+
+func detectDefaultRouteDeviceID() string {
+	connection, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return ""
+	}
+	defer connection.Close()
+
+	localAddress, ok := connection.LocalAddr().(*net.UDPAddr)
+	if !ok || localAddress.IP == nil {
+		return ""
+	}
+
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return ""
+	}
+	for _, iface := range interfaces {
+		if len(iface.HardwareAddr) == 0 {
+			continue
+		}
+		addresses, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+		for _, address := range addresses {
+			ipNet, ok := address.(*net.IPNet)
+			if !ok || ipNet.IP == nil {
+				continue
+			}
+			if ipNet.IP.Equal(localAddress.IP) {
+				return iface.HardwareAddr.String()
+			}
+		}
+	}
+	return ""
+}
+
+func loadTokenFromEnvOrDefault(explicitPath string) (string, error) {
+	tokenFilePath := explicitPath
+	if tokenFilePath == "" {
+		tokenFilePath = defaultTokenFileName
+		if _, err := os.Stat(tokenFilePath); err != nil {
+			if os.IsNotExist(err) {
+				return "", nil
+			}
+			return "", err
+		}
+	}
+
+	manager := NewTokenManager(WithTokenFilePath(tokenFilePath))
+	token, err := manager.LoadToken()
+	if err != nil {
+		if explicitPath == "" && os.IsNotExist(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	return token, nil
 }

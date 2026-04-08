@@ -43,19 +43,34 @@ func NewHttpClient(cfg *config.ClientConfig) *HttpClient {
 	}
 }
 
+// NewQuoteHttpClient 创建使用行情网关地址的 HttpClient。
+func NewQuoteHttpClient(cfg *config.ClientConfig) *HttpClient {
+	cloned := *cfg
+	if cloned.QuoteServerURL != "" {
+		cloned.ServerURL = cloned.QuoteServerURL
+	}
+	return NewHttpClient(&cloned)
+}
+
 // buildCommonParams 构造公共请求参数
-func (c *HttpClient) buildCommonParams(apiMethod string, bizContent string) map[string]string {
+func (c *HttpClient) buildCommonParams(apiMethod string, bizContent string, version string) map[string]string {
+	if version == "" {
+		version = DefaultVersion
+	}
 	params := map[string]string{
 		"tiger_id":    c.config.TigerID,
 		"method":      apiMethod,
 		"charset":     DefaultCharset,
 		"sign_type":   DefaultSignType,
 		"timestamp":   time.Now().Format("2006-01-02 15:04:05"),
-		"version":     DefaultVersion,
+		"version":     version,
 		"biz_content": bizContent,
 	}
 	if c.config.Language != "" {
 		params["language"] = c.config.Language
+	}
+	if c.config.DeviceID != "" {
+		params["device_id"] = c.config.DeviceID
 	}
 	return params
 }
@@ -72,7 +87,7 @@ func (c *HttpClient) signParams(params map[string]string) (string, error) {
 
 // Execute 执行结构化 API 请求，返回解析后的 ApiResponse
 func (c *HttpClient) Execute(request *ApiRequest) (*ApiResponse, error) {
-	params := c.buildCommonParams(request.Method, request.BizContent)
+	params := c.buildCommonParams(request.Method, request.BizContent, request.Version)
 	sign, err := c.signParams(params)
 	if err != nil {
 		return nil, err
@@ -123,7 +138,7 @@ func (c *HttpClient) ExecuteRaw(apiMethod string, requestJSON string) (string, e
 		return "", &TigerError{Code: -1, Message: "request_json 不是有效的 JSON", Category: CategoryUnknown}
 	}
 
-	params := c.buildCommonParams(apiMethod, requestJSON)
+	params := c.buildCommonParams(apiMethod, requestJSON, "")
 	sign, err := c.signParams(params)
 	if err != nil {
 		return "", err

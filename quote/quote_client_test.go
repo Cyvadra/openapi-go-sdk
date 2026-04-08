@@ -2,17 +2,20 @@ package quote
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
-	"github.com/tigerfintech/openapi-go-sdk/client"
-	"github.com/tigerfintech/openapi-go-sdk/config"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"time"
+
+	"github.com/tigerfintech/openapi-go-sdk/client"
+	"github.com/tigerfintech/openapi-go-sdk/config"
 )
 
 // mustGenerateKeyPEM 生成测试用 PKCS#1 PEM 格式私钥
@@ -233,6 +236,44 @@ func TestGetOptionKline(t *testing.T) {
 	}
 	if data == nil {
 		t.Fatal("GetOptionKline 返回 nil data")
+	}
+}
+
+func TestOptionRequestsPreserveDecimalStrike(t *testing.T) {
+	bodies := make([]string, 0, 2)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Fatalf("read request body: %v", err)
+		}
+		bodies = append(bodies, string(body))
+		resp := map[string]interface{}{
+			"code":      0,
+			"message":   "success",
+			"data":      []map[string]interface{}{},
+			"timestamp": 1700000000,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(resp)
+	}))
+	defer server.Close()
+
+	qc := newTestQuoteClient(server.URL)
+	if _, err := qc.GetOptionBrief([]string{"AAPL 260417C00200000"}); err != nil {
+		t.Fatalf("GetOptionBrief failed: %v", err)
+	}
+	if _, err := qc.GetOptionKline("AAPL 260417C00200000", "day"); err != nil {
+		t.Fatalf("GetOptionKline failed: %v", err)
+	}
+
+	if len(bodies) != 2 {
+		t.Fatalf("expected 2 request bodies, got %d", len(bodies))
+	}
+	for _, body := range bodies {
+		if !strings.Contains(body, `\"strike\":200.0`) {
+			t.Fatalf("expected decimal strike in biz_content, got %s", body)
+		}
 	}
 }
 

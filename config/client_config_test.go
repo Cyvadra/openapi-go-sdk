@@ -6,8 +6,22 @@ import (
 	"time"
 )
 
+func clearConfigEnv(t *testing.T) {
+	t.Helper()
+	for _, key := range []string{
+		"TIGEROPEN_TIGER_ID",
+		"TIGEROPEN_PRIVATE_KEY",
+		"TIGEROPEN_ACCOUNT",
+		"TIGEROPEN_TOKEN",
+		"TIGEROPEN_TOKEN_FILE",
+	} {
+		t.Setenv(key, "")
+	}
+}
+
 // TestNewClientConfig_WithOptions 测试通过 Option 模式设置字段
 func TestNewClientConfig_WithOptions(t *testing.T) {
+	clearConfigEnv(t)
 	cfg, err := NewClientConfig(
 		WithTigerID("test_tiger_id"),
 		WithPrivateKey("test_private_key"),
@@ -46,6 +60,7 @@ func TestNewClientConfig_WithOptions(t *testing.T) {
 
 // TestNewClientConfig_Defaults 测试默认值
 func TestNewClientConfig_Defaults(t *testing.T) {
+	clearConfigEnv(t)
 	cfg, err := NewClientConfig(
 		WithTigerID("tid"),
 		WithPrivateKey("pk"),
@@ -70,6 +85,7 @@ func TestNewClientConfig_Defaults(t *testing.T) {
 
 // TestNewClientConfig_SandboxURL 测试沙箱模式 URL
 func TestNewClientConfig_SandboxURL(t *testing.T) {
+	clearConfigEnv(t)
 	cfg, err := NewClientConfig(
 		WithTigerID("tid"),
 		WithPrivateKey("pk"),
@@ -86,6 +102,7 @@ func TestNewClientConfig_SandboxURL(t *testing.T) {
 
 // TestNewClientConfig_MissingTigerID 测试缺少 tiger_id 时返回错误
 func TestNewClientConfig_MissingTigerID(t *testing.T) {
+	clearConfigEnv(t)
 	_, err := NewClientConfig(
 		WithPrivateKey("pk"),
 	)
@@ -96,6 +113,7 @@ func TestNewClientConfig_MissingTigerID(t *testing.T) {
 
 // TestNewClientConfig_MissingPrivateKey 测试缺少 private_key 时返回错误
 func TestNewClientConfig_MissingPrivateKey(t *testing.T) {
+	clearConfigEnv(t)
 	_, err := NewClientConfig(
 		WithTigerID("tid"),
 	)
@@ -106,6 +124,7 @@ func TestNewClientConfig_MissingPrivateKey(t *testing.T) {
 
 // TestNewClientConfig_EnvOverride 测试环境变量覆盖代码设置
 func TestNewClientConfig_EnvOverride(t *testing.T) {
+	clearConfigEnv(t)
 	// 设置环境变量
 	os.Setenv("TIGEROPEN_TIGER_ID", "env_tiger_id")
 	os.Setenv("TIGEROPEN_PRIVATE_KEY", "env_private_key")
@@ -139,6 +158,7 @@ func TestNewClientConfig_EnvOverride(t *testing.T) {
 
 // TestNewClientConfig_EnvOverridePartial 测试环境变量部分覆盖
 func TestNewClientConfig_EnvOverridePartial(t *testing.T) {
+	clearConfigEnv(t)
 	os.Setenv("TIGEROPEN_TIGER_ID", "env_tid")
 	defer os.Unsetenv("TIGEROPEN_TIGER_ID")
 
@@ -165,6 +185,7 @@ func TestNewClientConfig_EnvOverridePartial(t *testing.T) {
 
 // TestNewClientConfig_FromPropertiesFile 测试从配置文件加载
 func TestNewClientConfig_FromPropertiesFile(t *testing.T) {
+	clearConfigEnv(t)
 	content := "tiger_id=file_tid\nprivate_key=file_pk\naccount=file_acc\nlicense=TBNZ\n"
 	path := writeTempFile(t, content)
 
@@ -191,6 +212,7 @@ func TestNewClientConfig_FromPropertiesFile(t *testing.T) {
 
 // TestNewClientConfig_EnvOverridesFile 测试环境变量优先级高于配置文件
 func TestNewClientConfig_EnvOverridesFile(t *testing.T) {
+	clearConfigEnv(t)
 	content := "tiger_id=file_tid\nprivate_key=file_pk\naccount=file_acc\n"
 	path := writeTempFile(t, content)
 
@@ -216,6 +238,7 @@ func TestNewClientConfig_EnvOverridesFile(t *testing.T) {
 
 // TestNewClientConfig_WithToken 测试 Token 相关字段
 func TestNewClientConfig_WithToken(t *testing.T) {
+	clearConfigEnv(t)
 	cfg, err := NewClientConfig(
 		WithTigerID("tid"),
 		WithPrivateKey("pk"),
@@ -236,6 +259,7 @@ func TestNewClientConfig_WithToken(t *testing.T) {
 
 // TestNewClientConfig_WithLicense 测试 License 字段
 func TestNewClientConfig_WithLicense(t *testing.T) {
+	clearConfigEnv(t)
 	cfg, err := NewClientConfig(
 		WithTigerID("tid"),
 		WithPrivateKey("pk"),
@@ -252,6 +276,7 @@ func TestNewClientConfig_WithLicense(t *testing.T) {
 
 // TestNewClientConfig_PKCS1FromFile 测试从配置文件加载 PKCS#1 私钥
 func TestNewClientConfig_PKCS1FromFile(t *testing.T) {
+	clearConfigEnv(t)
 	content := "tiger_id=tid\nprivate_key_pk1=pk1_key_content\naccount=acc\n"
 	path := writeTempFile(t, content)
 
@@ -269,6 +294,7 @@ func TestNewClientConfig_PKCS1FromFile(t *testing.T) {
 
 // TestNewClientConfig_PKCS8FromFile 测试从配置文件加载 PKCS#8 私钥
 func TestNewClientConfig_PKCS8FromFile(t *testing.T) {
+	clearConfigEnv(t)
 	content := "tiger_id=tid\nprivate_key_pk8=pk8_key_content\naccount=acc\n"
 	path := writeTempFile(t, content)
 
